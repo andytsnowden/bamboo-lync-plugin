@@ -1,0 +1,1 @@
+${room!} <span class="notificationRecipientType">([@ww.text name="lync.username.view"/])</span>
