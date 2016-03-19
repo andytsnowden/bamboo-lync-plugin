@@ -3,17 +3,22 @@ package com.ipsoft.plugins.bamboo.lync;
 
 import com.atlassian.bamboo.deployments.notification.DeploymentResultAwareNotificationRecipient;
 import com.atlassian.bamboo.deployments.results.DeploymentResult;
+import com.atlassian.bamboo.notification.Notification;
 import com.atlassian.bamboo.notification.NotificationRecipient;
 import com.atlassian.bamboo.notification.NotificationTransport;
 import com.atlassian.bamboo.notification.recipients.AbstractNotificationRecipient;
 import com.atlassian.bamboo.plan.Plan;
 import com.atlassian.bamboo.plan.cache.ImmutablePlan;
+import com.atlassian.bamboo.plugin.descriptor.NotificationRecipientModuleDescriptor;
 import com.atlassian.bamboo.resultsummary.ResultsSummary;
 import com.atlassian.bamboo.template.TemplateRenderer;
+import com.atlassian.bamboo.utils.error.ErrorCollection;
+import com.atlassian.bamboo.utils.error.SimpleErrorCollection;
 import com.atlassian.bamboo.variable.CustomVariableContext;
 
 import com.google.common.collect.Lists;
 
+import com.google.common.collect.Maps;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
@@ -51,10 +56,9 @@ public class lyncNotificationRecipient extends AbstractNotificationRecipient imp
     }
 
     @Override
-    public void init(@Nullable String configurationData)
-    {
+    public void init(@Nullable String configurationData) {
         //Skip if there's nothing to process
-        if (configurationData == null || configurationData.length() == 0){
+        if (configurationData == null || configurationData.length() == 0) {
             return;
         }
 
@@ -64,7 +68,9 @@ public class lyncNotificationRecipient extends AbstractNotificationRecipient imp
             Element root = doc.getRootElement();
 
             username = root.getChildText(USERNAME);
-        } catch (JDOMException | IOException e) {
+        } catch (JDOMException e) {
+            //Ignore
+        } catch (IOException e) {
             //Ignore
         }
     }
@@ -92,7 +98,47 @@ public class lyncNotificationRecipient extends AbstractNotificationRecipient imp
         return xmlString;
     }
 
-    //TODO getEditHtml(), populateContext(), getViewHtml(), ErrorCollection
+    @NotNull
+    @Override
+    public String getEditHtml()
+    {
+        String editTemplateLocation = ((NotificationRecipientModuleDescriptor)getModuleDescriptor()).getEditTemplate();
+        return templateRenderer.render(editTemplateLocation, populateContext());
+    }
+
+    @NotNull
+    @Override
+    public String getViewHtml()
+    {
+        String viewTemplateLocation = ((NotificationRecipientModuleDescriptor)getModuleDescriptor()).getViewTemplate();
+        return templateRenderer.render(viewTemplateLocation, populateContext());
+    }
+
+    private Map<String, Object> populateContext()
+    {
+        Map<String, Object> context = Maps.newHashMap();
+
+        if (username != null)
+        {
+            context.put(USERNAME, username);
+        }
+
+        return context;
+    }
+
+    public ErrorCollection validate(@NotNull Map<String, String[]> params)
+    {
+        ErrorCollection errorCollection = new SimpleErrorCollection();
+
+        //Username Exists
+        String[] roomArray = (String[]) params.get(USERNAME);
+        if ((roomArray == null) || (roomArray.length == 0)) {
+            errorCollection.addError(USERNAME, "You must enter a username");
+            return errorCollection;
+        }
+
+        return errorCollection;
+    }
 
     @NotNull
     public List<NotificationTransport> getTransports() {
