@@ -39,6 +39,11 @@
             <scope>compile</scope>
         </dependency>
         <dependency>
+            <groupId>com.atlassian.bandana</groupId>
+            <artifactId>atlassian-bandana</artifactId>
+            <version>3.1</version>
+        </dependency>
+        <dependency>
             <groupId>jdom</groupId>
             <artifactId>jdom</artifactId>
             <version>1.1</version>

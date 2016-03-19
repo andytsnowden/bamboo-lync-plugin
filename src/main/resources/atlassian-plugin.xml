@@ -18,4 +18,22 @@
         <resource type="freemarker" name="view" location="LyncViewNotification.ftl"/>
     </notificationRecipient>
 
+    <xwork key="lync.instancecfg" name="Lync configuration">
+        <package name="LyncServerConfiguration" extends="admin">
+            <action name="viewConfigureLyncServer" class="com.ipsoft.plugins.bamboo.lync.lyncGlobalConfiguration" method="input">
+                <result name="input" type="freemarker">LyncServerConfiguration.ftl</result>
+            </action>
+            <action name="updateConfigureLyncServer" class="com.ipsoft.plugins.bamboo.lync.lyncGlobalConfiguration" method="execute">
+                <result name="input" type="freemarker">LyncServerConfiguration.ftl</result>
+                <result name="error" type="freemarker">LyncServerConfiguration.ftl</result>
+                <result name="success" type="freemarker">LyncServerConfiguration.ftl</result>
+            </action>
+        </package>
+    </xwork>
+
+    <web-item key="lync.systemcfg" name="Configure Lync Server" section="system.admin/plugins">
+        <label key="Lync Server"/>
+        <link linkId="LyncServerConfiguration">/viewConfigureLyncServer.action</link>
+    </web-item>
+
 </atlassian-plugin>

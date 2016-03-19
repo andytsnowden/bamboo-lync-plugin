@@ -1,6 +1,6 @@
 package com.ipsoft.plugins.bamboo.lync;
 
-
+import com.atlassian.bamboo.bandana.PlanAwareBandanaContext;
 import com.atlassian.bamboo.deployments.notification.DeploymentResultAwareNotificationRecipient;
 import com.atlassian.bamboo.deployments.results.DeploymentResult;
 import com.atlassian.bamboo.notification.Notification;
@@ -15,10 +15,12 @@ import com.atlassian.bamboo.template.TemplateRenderer;
 import com.atlassian.bamboo.utils.error.ErrorCollection;
 import com.atlassian.bamboo.utils.error.SimpleErrorCollection;
 import com.atlassian.bamboo.variable.CustomVariableContext;
+import com.atlassian.bandana.BandanaManager;
 
 import com.google.common.collect.Lists;
-
 import com.google.common.collect.Maps;
+
+import org.apache.commons.lang3.StringUtils;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
@@ -48,6 +50,7 @@ public class lyncNotificationRecipient extends AbstractNotificationRecipient imp
     private ResultsSummary resultsSummary;
     private DeploymentResult deploymentResult;
     private CustomVariableContext customVariableContext;
+    private BandanaManager bandanaManager;
 
     @Override
     public void populate(@NotNull Map<String, String[]> params)
@@ -56,7 +59,8 @@ public class lyncNotificationRecipient extends AbstractNotificationRecipient imp
     }
 
     @Override
-    public void init(@Nullable String configurationData) {
+    public void init(@Nullable String configurationData)
+    {
         //Skip if there's nothing to process
         if (configurationData == null || configurationData.length() == 0) {
             return;
@@ -130,6 +134,13 @@ public class lyncNotificationRecipient extends AbstractNotificationRecipient imp
     {
         ErrorCollection errorCollection = new SimpleErrorCollection();
 
+        // Master Config should be done already
+        String lyncServer = (String) bandanaManager.getValue(PlanAwareBandanaContext.GLOBAL_CONTEXT, lyncGlobalConfiguration.PROP_LYNC_SERVER);
+
+        if (StringUtils.isEmpty(lyncServer)){
+            errorCollection.addErrorMessage("Please validate your Lync Server Settings.");
+        }
+
         //Username Exists
         String[] roomArray = (String[]) params.get(USERNAME);
         if ((roomArray == null) || (roomArray.length == 0)) {
@@ -141,8 +152,13 @@ public class lyncNotificationRecipient extends AbstractNotificationRecipient imp
     }
 
     @NotNull
-    public List<NotificationTransport> getTransports() {
+    public List<NotificationTransport> getTransports()
+    {
         List<NotificationTransport> list = Lists.newArrayList();
+
+        //Global Config
+        String lyncServer = (String) bandanaManager.getValue(PlanAwareBandanaContext.GLOBAL_CONTEXT, lyncGlobalConfiguration.PROP_LYNC_SERVER);
+
         //list.add(new XMPPMucNotificationTransport(room, roompw, nickname, plan, resultsSummary, deploymentResult, customVariableContext));
         return list;
     }
@@ -175,5 +191,10 @@ public class lyncNotificationRecipient extends AbstractNotificationRecipient imp
     public void setCustomVariableContext(CustomVariableContext customVariableContext)
     {
         this.customVariableContext = customVariableContext;
+    }
+
+    public void setBandanaManager(BandanaManager bandanaManager)
+    {
+        this.bandanaManager = bandanaManager;
     }
 }
