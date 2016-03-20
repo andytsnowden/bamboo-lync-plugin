@@ -8,7 +8,7 @@ import org.apache.commons.lang.StringUtils;
 
 public class lyncGlobalConfiguration extends BambooActionSupport {
 
-    public static final String PROP_LYNC_SERVER = "lync.server";
+    public static final String PROP_LYNC_SERVER = "lyncServer";
 
     private String lyncServer = null;
 

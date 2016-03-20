@@ -14,7 +14,7 @@ submitLabelKey='Update Configuration'
 titleKey='Lync Server'
 description='Send IM notifications using Microsoft Lync 2013.']
 
-    [@ww.textfield name='lyncServer' labelKey="lync.server" required='true' value=lync.server descriptionKey='lync.server.description' /]
+    [@ww.textfield name='lyncServer' labelKey="lync.server" required='true' value="${lyncServer!}" descriptionKey='lync.server.description' /]
 
     [@ui.clear /]
 
