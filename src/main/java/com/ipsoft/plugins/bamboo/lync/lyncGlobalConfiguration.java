@@ -14,8 +14,13 @@ public class lyncGlobalConfiguration extends BambooActionSupport {
 
     private BandanaManager bandanaManager = null;
 
+    @Override
+    public String doInput() throws Exception {
 
-    public String Execute() throws Exception
+        return INPUT;
+    }
+
+    public String doExecute() throws Exception
     {
         bandanaManager.setValue(PlanAwareBandanaContext.GLOBAL_CONTEXT, PROP_LYNC_SERVER, this.lyncServer);
 
