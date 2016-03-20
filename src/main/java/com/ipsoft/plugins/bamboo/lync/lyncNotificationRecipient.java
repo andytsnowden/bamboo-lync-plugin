@@ -3,7 +3,6 @@ package com.ipsoft.plugins.bamboo.lync;
 import com.atlassian.bamboo.bandana.PlanAwareBandanaContext;
 import com.atlassian.bamboo.deployments.notification.DeploymentResultAwareNotificationRecipient;
 import com.atlassian.bamboo.deployments.results.DeploymentResult;
-import com.atlassian.bamboo.notification.Notification;
 import com.atlassian.bamboo.notification.NotificationRecipient;
 import com.atlassian.bamboo.notification.NotificationTransport;
 import com.atlassian.bamboo.notification.recipients.AbstractNotificationRecipient;
@@ -41,7 +40,7 @@ public class lyncNotificationRecipient extends AbstractNotificationRecipient imp
                                                                                         NotificationRecipient.RequiresResultSummary{
 
 
-    private static String USERNAME = "username";
+    private static final String USERNAME = "username";
     private String username = null;
 
     private TemplateRenderer templateRenderer;
@@ -97,9 +96,8 @@ public class lyncNotificationRecipient extends AbstractNotificationRecipient imp
         Format prettyFormat = Format.getPrettyFormat();
         prettyFormat.setOmitDeclaration(true);
         XMLOutputter outputter = new XMLOutputter(prettyFormat);
-        String xmlString = outputter.outputString(doc);
 
-        return xmlString;
+        return outputter.outputString(doc);
     }
 
     @NotNull
@@ -142,7 +140,8 @@ public class lyncNotificationRecipient extends AbstractNotificationRecipient imp
         }
 
         //Username Exists
-        String[] roomArray = (String[]) params.get(USERNAME);
+        String[] roomArray;
+        roomArray = params.get(USERNAME);
         if ((roomArray == null) || (roomArray.length == 0)) {
             errorCollection.addError(USERNAME, "You must enter a username");
             return errorCollection;
@@ -159,7 +158,9 @@ public class lyncNotificationRecipient extends AbstractNotificationRecipient imp
         //Global Config
         String lyncServer = (String) bandanaManager.getValue(PlanAwareBandanaContext.GLOBAL_CONTEXT, lyncGlobalConfiguration.PROP_LYNC_SERVER);
 
-        //list.add(new XMPPMucNotificationTransport(room, roompw, nickname, plan, resultsSummary, deploymentResult, customVariableContext));
+        //Transport
+        list.add(new lyncNotificationTransport(lyncServer, plan, resultsSummary, deploymentResult, customVariableContext));
+
         return list;
     }
 
